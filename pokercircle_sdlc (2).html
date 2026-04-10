@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokerCircle — SDLC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a0f0f;
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 48px;
+  }
+
+  .top {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .suits {
+    font-size: 20px;
+    letter-spacing: 8px;
+    opacity: 0.15;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    color: #f0c040;
+    font-size: 34px;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(240,192,64,0.4);
+    margin-bottom: 10px;
+  }
+  .intro {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .loading {
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .spinner {
+    width: 26px; height: 26px;
+    border: 2px solid rgba(240,192,64,0.12);
+    border-top-color: #f0c040;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(240,192,64,0.14);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .card.visible { opacity: 1; transform: translateY(0); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: rgba(240,192,64,0.4);
+    letter-spacing: 0.1em;
+    min-width: 20px;
+  }
+  .phase-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f0c040;
+    letter-spacing: 0.02em;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #50c878;
+    box-shadow: 0 0 6px rgba(80,200,120,0.5);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .tagline {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+    font-style: italic;
+    border-left: 2px solid rgba(240,192,64,0.3);
+    padding-left: 10px;
+    min-height: 38px;
+  }
+  .tagline.pending {
+    font-style: normal;
+    font-size: 11px;
+    color: rgba(255,255,255,0.18);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mini-spin {
+    width: 10px; height: 10px;
+    border: 1.5px solid rgba(240,192,64,0.12);
+    border-top-color: #f0c040;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .divider-line {
+    width: 100%;
+    height: 1px;
+    background: rgba(240,192,64,0.1);
+  }
+
+  .desc {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.6;
+  }
+
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.15);
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="suits">♠ ♥ ♦ ♣</div>
+  <h1>PokerCircle</h1>
+  <div class="subtitle">Software Development Lifecycle · Team 22</div>
+  <p class="intro">From idea to demo — how we designed and built PokerCircle across 8 Agile sprints using industry-standard software engineering practices.</p>
+</div>
+
+<div class="loading" id="global-loading">
+  <div class="spinner"></div>
+  Loading phases...
+</div>
+
+<div class="grid" id="grid" style="display:none;"></div>
+
+<div class="footer" id="footer" style="display:none;">
+  Syracuse University · CIS · Spring 2026 · Logan · Liam · Gianmarco · Hernan
+</div>
+
+<script>
+const phases = [
+  {
+    num: "01",
+    name: "Planning",
+    context: "After the group came up with the app idea for PokerCircle, the team moved into planning. This meant agreeing on the concept, identifying what the app needed to do, and choosing the right tech stack — React Native, Node.js, Supabase, Railway, and Socket.IO. Planning gave the team a shared direction before any design or code began.",
+    desc: "Defined the app concept, aligned the team on scope, and selected the full tech stack before a single line of code was written."
+  },
+  {
+    num: "02",
+    name: "Requirements",
+    context: "The team focused on creating specific and testable user and system requirements for the app. This meant writing clear statements about what users needed to do — like creating sessions, tracking finances, and settling debts — and what the system needed to support behind the scenes. Good requirements prevented scope creep and gave each sprint a clear target.",
+    desc: "Wrote specific, testable user and system requirements that defined exactly what PokerCircle needed to do — and kept every sprint focused."
+  },
+  {
+    num: "03",
+    name: "Use Cases & Activity Diagrams",
+    context: "Use cases were created for the class diagram, capturing every meaningful interaction a user could have with the app. Activity diagrams were then built for each use case, mapping out the step-by-step flow of actions and decisions. These diagrams made it easy to see how the app would actually behave from the user's perspective before writing a single line of code.",
+    desc: "Mapped every user interaction with use cases, then visualized the decision flows with activity diagrams — before touching the codebase."
+  },
+  {
+    num: "04",
+    name: "Class & CRC Design",
+    context: "The team made CRC (Class-Responsibility-Collaborator) cards to identify the key objects in the system, what each one was responsible for, and which other objects it needed to work with. Class diagrams were then built from these cards, forming the structural backbone of the application.",
+    desc: "CRC cards identified every object and its responsibilities. Class diagrams turned those cards into the structural blueprint of the app."
+  },
+  {
+    num: "05",
+    name: "Architecture & Sequence Diagrams",
+    context: "A system architecture diagram was created to map out how the frontend, backend, database, and real-time layer connected to each other. Sequence diagrams showed the exact order of messages between components for key flows like logging in or ending a session. These were refined as implementation progressed.",
+    desc: "Architecture diagrams wired the full system together. Sequence diagrams traced every message in critical flows — and evolved as we built."
+  },
+  {
+    num: "06",
+    name: "Implementation — Sprints 1–8",
+    context: "Development happened over 8 Agile sprints, each roughly two weeks long. The diagrams from the design phase guided what to build and in what order. Weekly sprints with defined user stories kept the team organized, accountable, and on pace for the April 11 demo deadline.",
+    desc: "Eight focused sprints, guided by design artifacts and Scrum ceremonies, took PokerCircle from an empty repo to a live demo."
+  }
+];
+
+async function getTagline(phase) {
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 80,
+      system: "You write punchy, memorable one-liners for software engineering trifolds. Respond with a single sentence only — no quotes, no punctuation at the end unless it's a period, no preamble. Make it vivid and specific to the phase described. Under 20 words.",
+      messages: [{
+        role: "user",
+        content: `Write a brief, powerful statement for the "${phase.name}" phase of a software project SDLC. Context: ${phase.context}`
+      }]
+    })
+  });
+  const data = await resp.json();
+  return data.content?.[0]?.text?.trim() || null;
+}
+
+async function build() {
+  const grid = document.getElementById('grid');
+  const footer = document.getElementById('footer');
+  document.getElementById('global-loading').style.display = 'none';
+  grid.style.display = 'grid';
+  footer.style.display = 'block';
+
+  phases.forEach((phase, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = `card-${i}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="phase-num">${phase.num}</span>
+        <span class="phase-name">${phase.name}</span>
+        <span class="dot"></span>
+      </div>
+      <div class="tagline pending" id="tagline-${i}">
+        <div class="mini-spin"></div>
+        Generating...
+      </div>
+      <div class="divider-line"></div>
+      <div class="desc">${phase.desc}</div>
+    `;
+    grid.appendChild(card);
+    requestAnimationFrame(() => {
+      setTimeout(() => card.classList.add('visible'), i * 90);
+    });
+  });
+
+  const results = await Promise.allSettled(phases.map(p => getTagline(p)));
+  results.forEach((result, i) => {
+    const el = document.getElementById(`tagline-${i}`);
+    if (result.status === 'fulfilled' && result.value) {
+      el.className = 'tagline';
+      el.textContent = `"${result.value}"`;
+    } else {
+      el.className = 'tagline';
+      el.style.color = 'rgba(255,255,255,0.3)';
+      el.style.fontStyle = 'normal';
+      el.style.fontSize = '11px';
+      el.textContent = phases[i].desc;
+    }
+  });
+}
+
+build();
+</script>
+</body>
+</html>
